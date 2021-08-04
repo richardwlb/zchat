@@ -1,0 +1,52 @@
+#messages {
+  height: calc(100% - 1.6rem);
+  width: calc(100% - 150px);
+  border: 1.5px solid var(--color-line-box);
+  background: var(--color-background-text);
+  padding: 0.5rem;
+  border-radius: 5px;
+  overflow: auto;
+  margin-right: 0.3rem;
+  margin-bottom: 0.3rem;
+  color: var(--color-messages-text);
+}
+
+#users {
+  height: calc(100% - 1.6rem);
+  width: 100px;
+  border: 1.5px solid var(--color-line-box);
+  background: var(--color-background-text);
+  padding: 0.5rem;
+  border-radius: 5px;
+  overflow: auto;
+}
+
+#users:hover {
+  cursor: default;
+}
+
+#container-messages {
+  display: flex;
+  height: calc(100% - 5.5rem);
+}
+
+.input-text {
+  width: calc(100% - 150px);
+  height: 1.4rem;
+  padding: 0.5rem;
+  margin-right: 0.3rem;
+  border-radius: 5px;
+}
+
+button {
+  height: 2.5rem !important;
+  width: 7.4rem;
+}
+
+.message-line {
+  margin: 0.3rem 0 0.7rem 0;
+}
+
+.message-time {
+  font: 0.75rem arial;
+}

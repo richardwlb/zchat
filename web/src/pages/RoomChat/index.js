@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Input, Button, TextField } from '@material-ui/core';
+import { TextField, Input } from '@material-ui/core';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
+
+import './styles.css';
 
 const URL = 'ws://localhost:8000';
 const client = new W3CWebSocket(URL);
@@ -28,12 +30,14 @@ export default function RoomChat() {
 
       if(dataFromServer.type === 'message'){
         const message = dataFromServer.data;
-        if(message !== undefined) document.querySelector('#messages').innerHTML += `<div>${message}</div>`;
+        const time = new Date().toLocaleString();
+        console.log(time);
+        document.querySelector('#messages').innerHTML += `
+          <div class='message-line' key='${time}'><div class='message-time'>(${time})</div> <b>${message.user}:</b> ${message.text}</div>
+        `;
       }
       
     };
-
-    
 
     client.onclose = () => {
       console.log('disconnected');
@@ -41,6 +45,10 @@ export default function RoomChat() {
     };
 
   }, []);
+
+  const keepScrollBotton = () => {
+    // var
+  }
 
   const onLogin = () => {
     const data = {
@@ -51,47 +59,52 @@ export default function RoomChat() {
     setLogin(userName);
   }
 
-  const onMessage = () => {
+  const onMessage = (ev) => {
+    ev.preventDefault();
+
     const message = {
       type: "message",
       text: messageToSend,
     }
     client.send(JSON.stringify(message));
+    setMessageToSend('');
   };
 
   return(
       !login ? 
         <>
-          <TextField 
-            required 
-            id="standard-required" 
-            label="Apelido" 
-            defaultValue="Richard" 
+          <label for='login'>Apelido</label>
+          <input 
+            required
+            id='login' 
+            type='text'
             value={userName}
-            onChange={ev => setUsername(ev.target.value)}   
-            variant="filled"
+            onChange={ev => setUsername(ev.target.value)} 
+            defaultValue='Richard'
           />
-          <Button onClick={ev => onLogin()}>Entrar</Button>
+          <button onClick={ev => onLogin()}>Entrar</button>
         </> 
       :
         <>
-          <Input
-            fullWidth={true}
-            margin="none"
-            value={messageToSend} 
-            onChange={ev => setMessageToSend(ev.target.value)} 
-            type="text"
-          />
-          <Button 
-            onClick={ev => onMessage()} 
-          >
-            Enviar
-          </Button>
-          <div id="messages"></div>
-          <hr />
-          <div id="users">
-            {users.map(user => <div key={user.user}>{user.user}</div>)}
+          <div id="container-messages">
+            <div id="messages"></div>
+            <div id="users">
+              {users.map(user => <div key={user.user}>{user.user}</div>)}
+            </div>
           </div>
+          <form onSubmit={ev => onMessage(ev)}>
+            <input
+              className='input-text'
+              fullWidth={true}
+              margin="none"
+              value={messageToSend} 
+              onChange={ev => setMessageToSend(ev.target.value)} 
+              type="text"
+            />
+            <button type='submit'>
+              Enviar
+            </button>
+          </form>
         </>
   );
 }
