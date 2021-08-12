@@ -3,10 +3,11 @@ import { useHistory } from 'react-router-dom';
 
 import './styles.css';
 
-export default function Login() {
+export default function Login( props ) {
   const [userName, setUserName] = useState('');
-
   const history = useHistory();
+
+  const message = props.location.state?.message;
 
   const onSubmit = (ev) => {
     ev.preventDefault();
@@ -29,6 +30,7 @@ export default function Login() {
           <button type='submit'>Entrar</button>
         </form>
       </div>
+      {message && <h4>{message}</h4> }
     </div>
   )
 }

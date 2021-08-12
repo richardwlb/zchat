@@ -27,7 +27,13 @@
 
 #container-messages {
   display: flex;
-  height: calc(100% - 5.5rem);
+  height: calc(100% - 7.5rem);
+}
+
+#navbar-chatroom {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1.5rem;
 }
 
 .input-text {
@@ -49,4 +55,15 @@ button {
 
 .message-time {
   font: 0.75rem arial;
+}
+
+.button-sair {
+  background: none;
+  border-radius: 5px;
+  color: #525252;
+  height: 0px !important;
+  width: 0px !important;
+  cursor: pointer;
+  opacity: 0.9;
+  transition: 0.2s;
 }

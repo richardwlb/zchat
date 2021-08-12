@@ -1,12 +1,14 @@
-import { BrowserRouter, Route,  } from 'react-router-dom';
+import { BrowserRouter, Route, Switch } from 'react-router-dom';
 import Login from './pages/Login';
 import RoomChat from './pages/RoomChat';
 
 export default function Routes() {
   return(
     <BrowserRouter>
-      <Route component={Login} path='/' exact />
-      <Route component={RoomChat} path='/chat' exact />
+      <Switch>
+        <Route path='/' exact component={Login} />
+        <Route path='/chat' component={RoomChat}/>
+      </Switch>
     </BrowserRouter>
   )
 }

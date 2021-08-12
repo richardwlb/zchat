@@ -1,29 +1,28 @@
-import { useEffect, useState, useMemo } from 'react';
-import { TextField, Input } from '@material-ui/core';
+import { useEffect, useState, useRef } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
+import { useHistory } from 'react-router-dom';
 
 import './styles.css';
 
 const URL = 'ws://localhost:8000';
 const client = new W3CWebSocket(URL);
 
-export default function RoomChat() {
-  const [login, setLogin] = useState('');
-  const [userName, setUsername] = useState('Richard');
+export default function RoomChat( props ) {
   const [users, setUsers] = useState([1, 2,3 ]);
   const [messageToSend, setMessageToSend] = useState('');
-  // const [messages, setMessages] = useState('');
-  
-  useEffect(() => {
+  const messagesRef = useRef();
+  const history = useHistory();
+
+  const connect = () => {
     client.onopen = () => {
       console.log('WebSocket Client Connected');
     };
+
+    doLogin();
     
     client.onmessage = function(msg) {
       const dataFromServer = JSON.parse(msg.data);
-
-      console.log('dataFromServer', dataFromServer);
-     
+    
       if(dataFromServer.type === 'usersList'){
         setUsers(dataFromServer.data);
       }
@@ -31,33 +30,39 @@ export default function RoomChat() {
       if(dataFromServer.type === 'message'){
         const message = dataFromServer.data;
         const time = new Date().toLocaleString();
-        console.log(time);
+
         document.querySelector('#messages').innerHTML += `
-          <div class='message-line' key='${time}'><div class='message-time'>(${time})</div> <b>${message.user}:</b> ${message.text}</div>
+          <div class='message-line' key='${time}'>
+            <div class='message-time'>(${time})</div> 
+              <b>${message.user}:</b> ${message.text}
+          </div>
         `;
+
+        messagesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
       }
-      
     };
-
-    client.onclose = () => {
-      console.log('disconnected');
-      setLogin('');
-    };
-
-  }, []);
-
-  const keepScrollBotton = () => {
-    // var
   }
 
-  const onLogin = () => {
+  console.log('dentro *** client state', client.readyState);
+ 
+  const doLogin = () => {
+    console.log('do login')
+    const { login } = props.location.state;
     const data = {
-      user: userName,
+      user: login,
       type: 'login',
     }
     client.send(JSON.stringify(data));
-    setLogin(userName);
   }
+
+  useEffect(() => {
+    if(client.readyState === 1) {
+      connect();
+    }
+    client.onclose = () => {
+      console.log('disconnected');
+    };
+  }, []);
 
   const onMessage = (ev) => {
     ev.preventDefault();
@@ -70,41 +75,44 @@ export default function RoomChat() {
     setMessageToSend('');
   };
 
+  const handleClose = () => {
+    client.close();
+    window.location = '/';
+  }
+
   return(
-      !login ? 
-        <>
-          <label for='login'>Apelido</label>
-          <input 
-            required
-            id='login' 
-            type='text'
-            value={userName}
-            onChange={ev => setUsername(ev.target.value)} 
-            defaultValue='Richard'
-          />
-          <button onClick={ev => onLogin()}>Entrar</button>
-        </> 
-      :
-        <>
-          <div id="container-messages">
-            <div id="messages"></div>
-            <div id="users">
-              {users.map(user => <div key={user.user}>{user.user}</div>)}
-            </div>
+    client.readyState !== 1 ? 
+      <>
+        Error.
+        {
+          history.push('/', { message: 'An error has ocurred. Please try again'})
+          }
+      </>
+    :
+      <>
+        <nav id='navbar-chatroom' >
+          <button className='button-sair' onClick={() => handleClose()} >Sair</button>
+        </nav>
+        <div id="container-messages">
+          <div id="messages">
+            <div ref={messagesRef} />
           </div>
-          <form onSubmit={ev => onMessage(ev)}>
-            <input
-              className='input-text'
-              fullWidth={true}
-              margin="none"
-              value={messageToSend} 
-              onChange={ev => setMessageToSend(ev.target.value)} 
-              type="text"
-            />
-            <button type='submit'>
-              Enviar
-            </button>
-          </form>
-        </>
+          <div id="users">
+            {users.map(user => <div key={user.user}>{user.user}</div>)}
+          </div>
+        </div>
+        <form onSubmit={ev => onMessage(ev)}>
+          <input
+            className='input-text'
+            margin="none"
+            value={messageToSend} 
+            onChange={ev => setMessageToSend(ev.target.value)} 
+            type="text"
+          />
+          <button type='submit'>
+            Enviar
+          </button>
+        </form>
+      </>
   );
 }
