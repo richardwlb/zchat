@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { w3cwebsocket as W3CWebSocket } from 'websocket';
 import { useHistory } from 'react-router-dom';
 
@@ -10,7 +10,6 @@ const client = new W3CWebSocket(URL);
 export default function RoomChat( props ) {
   const [users, setUsers] = useState([1, 2,3 ]);
   const [messageToSend, setMessageToSend] = useState('');
-  const messagesRef = useRef();
   const history = useHistory();
 
   const connect = () => {
@@ -22,7 +21,7 @@ export default function RoomChat( props ) {
     
     client.onmessage = function(msg) {
       const dataFromServer = JSON.parse(msg.data);
-    
+
       if(dataFromServer.type === 'usersList'){
         setUsers(dataFromServer.data);
       }
@@ -37,16 +36,11 @@ export default function RoomChat( props ) {
               <b>${message.user}:</b> ${message.text}
           </div>
         `;
-
-        messagesRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
       }
     };
   }
-
-  console.log('dentro *** client state', client.readyState);
  
   const doLogin = () => {
-    console.log('do login')
     const { login } = props.location.state;
     const data = {
       user: login,
@@ -94,9 +88,7 @@ export default function RoomChat( props ) {
           <button className='button-sair' onClick={() => handleClose()} >Sair</button>
         </nav>
         <div id="container-messages">
-          <div id="messages">
-            <div ref={messagesRef} />
-          </div>
+        <div id="messages" />
           <div id="users">
             {users.map(user => <div key={user.user}>{user.user}</div>)}
           </div>
